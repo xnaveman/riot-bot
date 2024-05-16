@@ -2,21 +2,22 @@
 
 import dotenv from 'dotenv';
 dotenv.config();
-import { Client ,IntentsBitField, Component } from 'discord.js';
-import { EmbedBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
+import { Client ,IntentsBitField, Component, EmbedBuilder, ButtonBuilder, ButtonStyle, ActivityType } from 'discord.js';
 import axios from 'axios';
 import fs from 'fs';
 import internal from 'stream';
 import { parse } from 'path';;
+
+//JSON OR CONFIGS
 import championData from './champion.json' assert { type: 'json' };
 
 
 //IMPORTS FUNCTIONS FROM OTHER FILES
 import { getChampionNameById } from './utils/getChampionNameById.js';
-import { getPlayerUuid } from './API calls/getPlayerUuid.js'
-import { getPlayerInfo } from './API calls/getPlayerInfo.js'
-import { getPlayerRank } from './API calls/getPlayerRank.js'
-import { getPlayerSpectate } from './API calls/getPlayerSpectate.js'
+import { getPlayerUuid } from './commands/APIcalls/getPlayerUuid.js'
+import { getPlayerInfo } from './commands/APIcalls/getPlayerInfo.js'
+import { getPlayerRank } from './commands/APIcalls/getPlayerRank.js'
+import { getPlayerSpectate } from './commands/APIcalls/getPlayerSpectate.js'
 
 
 const client = new Client({
@@ -31,6 +32,9 @@ const client = new Client({
 
 //BOOT
 client.on('ready', (c) => {
+    client.user.setActivity({
+        name: `League Of Legends`,
+    });
     console.log(`${c.user.tag} est opérationnel.`)
 });
 
@@ -39,7 +43,7 @@ client.on('messageCreate', (message) => {
 });
 
 
-// VARIABLES INIT
+// VARIABLES INIT (SHOULD BE ON A CONFIG)
 let unrank = "https://static.wikia.nocookie.net/leagueoflegends/images/1/13/Season_2023_-_Unranked.png/revision/latest?cb=20231007211937"
 let iron = "https://static.wikia.nocookie.net/leagueoflegends/images/f/f8/Season_2023_-_Iron.png/revision/latest?cb=20231007195831"
 let bronze = "https://static.wikia.nocookie.net/leagueoflegends/images/c/cb/Season_2023_-_Bronze.png/revision/latest?cb=20231007195824"
@@ -75,70 +79,67 @@ client.on('interactionCreate', (interaction) => {
 
 
 if (interaction.commandName === 'account'){ 
- 
-    async function processOptions() {
-        try {
-            let pseudoOption = interaction.options.get("pseudo");
-            let tagOption = interaction.options.get("tag");
-            let summonerName = pseudoOption.value;
-            let pseudo = pseudoOption.value.replace(/ /g, '%20');
-            let tag = tagOption.value;
-            let puuid = await getPlayerUuid(pseudo, tag);
-            const accData = await getPlayerInfo(puuid);
+    async function processOptions(){
+    try {
+        const pseudoOption = interaction.options.get("pseudo");
+        const tagOption = interaction.options.get("tag");
 
-            const rankData = await getPlayerRank(accData.id);
-            const ranked5x5 = rankData.find(entry => entry.queueType === 'RANKED_SOLO_5x5');
-            let tier = "UNRANKED";
-            let rank = "";
+        if (!pseudoOption || !tagOption) {
+            return interaction.reply('Les options pseudo et tag sont nécessaires.');
+        }
 
-            if (ranked5x5) {
+        const summonerName = pseudoOption.value;
+        const pseudo = pseudoOption.value.replace(/ /g, '%20');
+        const tag = tagOption.value;
+
+        const puuid = await getPlayerUuid(pseudo, tag);
+        const accData = await getPlayerInfo(puuid);
+        const rankData = await getPlayerRank(accData.id);
+
+        const ranked5x5 = rankData.find(entry => entry.queueType === 'RANKED_SOLO_5x5');
+        let tier = "UNRANKED";
+        let rank = "";
+
+        if (ranked5x5) {
             tier = ranked5x5.tier;
             rank = ranked5x5.rank;
-            }
+        }
 
-            let rankIcon;
-            if (tier === 'IRON') {
-                rankIcon = iron;
-            } else if (tier === 'BRONZE') {
-                rankIcon = bronze;
-            } else if (tier === 'SILVER') {
-                rankIcon = silver;
-            } else if (tier === 'GOLD') {
-                rankIcon = gold;
-            } else if (tier === 'PLATINUM') {
-                rankIcon = platinum;
-            } else if (tier === 'EMERALD') {
-                rankIcon = emerald;
-            } else if (tier === 'DIAMOND') {
-                rankIcon = diamond;
-            } else if (tier === 'MASTER') {
-                rankIcon = master;
-            } else if (tier === 'GRANDMASTER') {
-                rankIcon = grandmaster;
-            } else if (tier === 'CHALLENGER') {
-                rankIcon = challenger;
-            } else {
-                rankIcon = unrank;
-            }
+        let rankIcon;
+        switch (tier) {
+            case 'IRON': rankIcon = iron; break;
+            case 'BRONZE': rankIcon = bronze; break;
+            case 'SILVER': rankIcon = silver; break;
+            case 'GOLD': rankIcon = gold; break;
+            case 'PLATINUM': rankIcon = platinum; break;
+            case 'EMERALD': rankIcon = emerald; break;
+            case 'DIAMOND': rankIcon = diamond; break;
+            case 'MASTER': rankIcon = master; break;
+            case 'GRANDMASTER': rankIcon = grandmaster; break;
+            case 'CHALLENGER': rankIcon = challenger; break;
+            default: rankIcon = unrank; break;
+        }
 
-            const embed = new EmbedBuilder()
-	            .setColor(0x0099FF)
-	            .setTitle(`${summonerName}`)
-                .setAuthor({ name: `Rang soloqueue : ${tier} ${rank}`, iconURL: `${rankIcon}`})
-	            .setURL(`https://www.op.gg/summoners/euw/${pseudo}-${tag}`)
-	            .setDescription(`${summonerName} est actuellement Lvl ${accData.summonerLevel}`)
-	            .setThumbnail(`https://ddragon.leagueoflegends.com/cdn/14.8.1/img/profileicon/${accData.profileIconId}.png`)
-	            .setTimestamp()
-	            .setFooter({ text: 'Développé par xnaveman', iconURL: 'https://avatars.githubusercontent.com/u/98226517?v=4' });
+        const embed = new EmbedBuilder()
+            .setColor(0x0099FF)
+            .setTitle(`${summonerName}`)
+            .setAuthor({ name: `Rang soloqueue : ${tier} ${rank}`, iconURL: `${rankIcon}` })
+            .setURL(`https://www.op.gg/summoners/euw/${pseudo}-${tag}`)
+            .setDescription(`${summonerName} est actuellement Lvl ${accData.summonerLevel}`)
+            .setThumbnail(`https://ddragon.leagueoflegends.com/cdn/14.8.1/img/profileicon/${accData.profileIconId}.png`)
+            .setTimestamp()
+            .setFooter({ text: 'Développé par xnaveman', iconURL: 'https://avatars.githubusercontent.com/u/98226517?v=4' });
 
+        await interaction.reply({ embeds: [embed] });
 
-                interaction.reply({embeds: [embed]});
-        } catch (error) {
-            console.error("Erreur lors de la récupération de l'UUID du joueur :", error);
-            interaction.reply('Une erreur est survenue lors de la récupération de l\'UUID du joueur.');
-        }}
-    processOptions();
-}
+    } catch (error) {
+        console.error("Erreur lors de la récupération de l'UUID du joueur :", error);
+        await interaction.reply('Une erreur est survenue lors de la récupération de l\'UUID du joueur.');
+    }}
+
+    processOptions();  
+
+};
 
 if (interaction.commandName === 'spectate'){
     async function processOptions() {
