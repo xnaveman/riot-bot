@@ -243,7 +243,7 @@ if (interaction.commandName === 'spectate'){
                 
                     embedBlueSide.addFields({
                         name: `__${player.riotId}__`,
-                        value: `${championName} - ${firstPerkId}\n`,
+                        value: `[${championName} - ${firstPerkId}](${`https://www.op.gg/champions/${championName}`})`,
                         inline: false
                     });
                 });
@@ -289,7 +289,7 @@ if (interaction.commandName === 'spectate'){
 
                     embedRedSide.addFields({
                         name: `__${player.riotId}__`,
-                        value: `${championName} - ${firstPerkId}\n`,
+                        value: `[${championName} - ${firstPerkId}](${`https://www.op.gg/champions/${championName}`})`,
                         inline: false
                     });
                 });
