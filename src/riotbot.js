@@ -250,7 +250,7 @@ if (interaction.commandName === 'spectate'){
                 
                 redSide.forEach((player) => {
                     const championId = player.championId;
-                    const championName = getChampionNameById(championId, championData);
+                    let championName = getChampionNameById(championId, championData);
                     let firstPerkId = player.perks.perkIds[0];
 
                     if (firstPerkId === 8021) {
@@ -284,12 +284,13 @@ if (interaction.commandName === 'spectate'){
                     } else if ( firstPerkId === 8230){
                         firstPerkId = phase;
                     };
+                    
 
-                    console.log(championName);
-
+                    let championUrlName = championName.replace(/ /g, '');
+                    console.log(championUrlName);
                     embedRedSide.addFields({
                         name: `__${player.riotId}__`,
-                        value: `[${championName} - ${firstPerkId}](${`https://www.op.gg/champions/${championName}`})`,
+                        value: `[${championName} - ${firstPerkId}](https://www.op.gg/champions/${championUrlName})`,
                         inline: false
                     });
                 });
@@ -298,7 +299,7 @@ if (interaction.commandName === 'spectate'){
 
 
             interaction.reply({ embeds: [embedDuration, embedBlueSide, embedRedSide] });
-        } catch (error){
+            } catch (error){
             console.error("Erreur lors de la récupération de la partie en cours du joueur :", error);
             interaction.reply('Le joueur n\'est actuellement pas en jeu');
         }}
