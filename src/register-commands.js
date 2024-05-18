@@ -1,9 +1,6 @@
 import dotenv from 'dotenv';
 dotenv.config();
-import { REST, Routes, ApplicationCommandOptionType, Options } from 'discord.js';
-
-
-
+import { REST, Routes, ApplicationCommandOptionType } from 'discord.js';
 
 const commands = [
     {
@@ -42,26 +39,45 @@ const commands = [
             },
         ],
     },
+    {
+        name: 'track',
+        description: 'Traque un joueur spécifique et le harcèle via DM discord (surtout s\'il perd ou s\'il joue Teemo)',
+        options: [
+            {
+                name: 'pseudo',
+                description: 'Ton pseudo en jeu',
+                type: ApplicationCommandOptionType.String,
+                required: true,
+            },
+            {
+                name: 'tag',
+                description: 'Ton tag en jeu (#....) SANS LE # !!',
+                type: ApplicationCommandOptionType.String,
+                required: true,
+            },
+            {
+                name: 'discord_id',
+                description: 'L\'ID Discord du joueur à traquer',
+                type: ApplicationCommandOptionType.String,
+                required: true,
+            },
+        ],
+    },
 ];
-
-
-
 
 const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
 
 (async () => {
     try {
-console.log('Commandes slash init...')
+        console.log('Commandes slash init...');
 
         await rest.put(
             Routes.applicationGuildCommands(process.env.CLIENT_ID, process.env.GUILD_ID),
             { body: commands }
-        )
+        );
 
-        console.log('Commandes slash ok')
-    }   catch (error) {
-        console.log('Commandes slash => erreur')
+        console.log('Commandes slash ok');
+    } catch (error) {
+        console.log(error);
     }
-
-
 })();

@@ -3,6 +3,7 @@
 import dotenv from 'dotenv';
 dotenv.config();
 import { Client ,IntentsBitField, Component, EmbedBuilder, ButtonBuilder, ButtonStyle, ActivityType } from 'discord.js';
+import fetch from 'node-fetch';
 import axios from 'axios';
 import fs from 'fs';
 import internal from 'stream';
@@ -19,7 +20,7 @@ import { getPlayerInfo } from './commands/APIcalls/getPlayerInfo.js'
 import { getPlayerRank } from './commands/APIcalls/getPlayerRank.js'
 import { getPlayerSpectate } from './commands/APIcalls/getPlayerSpectate.js'
 
-
+//INIT CLIENT
 const client = new Client({
     intents: [
         IntentsBitField.Flags.Guilds,
@@ -29,7 +30,6 @@ const client = new Client({
     ],
 });
 
-
 //BOOT
 client.on('ready', (c) => {
     client.user.setActivity({
@@ -38,10 +38,10 @@ client.on('ready', (c) => {
     console.log(`${c.user.tag} est opérationnel.`)
 });
 
+//SPY
 client.on('messageCreate', (message) => {
     console.log(`${(message.author.tag)} à dit : ${(message.content)}`);
 });
-
 
 // VARIABLES INIT (SHOULD BE ON A CONFIG)
 let unrank = "https://static.wikia.nocookie.net/leagueoflegends/images/1/13/Season_2023_-_Unranked.png/revision/latest?cb=20231007211937"
@@ -72,6 +72,14 @@ let unsealed = "<:UnsealedSpellbook:1234863731645616130>"
 let strike = "<:FirstStrike:1234863669960245259>"
 let glacial = "<:GlacialAugment:1234863698334584892>"
 
+let usersToCheck = [];
+
+if (fs.existsSync('users.json')) {
+    usersToCheck = JSON.parse(fs.readFileSync('src/users.json', 'utf-8'));
+}
+function saveUsers() {
+    fs.writeFileSync('src/users.json', JSON.stringify(usersToCheck, null, 2));
+}
 
 // CHECKING FOR ALL INTERRACTION TYPE COMMANDS
 client.on('interactionCreate', (interaction) => {
@@ -305,8 +313,28 @@ if (interaction.commandName === 'spectate'){
         }}
     processOptions();
 }
+
+if (interaction.commandName === 'track'){
+
+}
 });
 
+client.on('messageCreate', async (message) => {
+    if (message.content.startsWith('!track')) {
+        const args = message.content.split(' ');
+        if (args.length !== 3) {
+            return message.reply('Usage: !track <RiotID> <DiscordID>');
+        }
+
+        const riotId = args[1];
+        const discordId = args[2];
+
+        usersToCheck.push({ riotId, discordId });
+        saveUsers();
+
+        message.reply(`Now tracking ${riotId}.`);
+    }
+});
 
 // PROCESS TO LINK THE ENV PROCESS AND THE TOKEN OF THE DISCORD APP
 const apiKey = process.env.API_KEY;
