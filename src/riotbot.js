@@ -78,7 +78,7 @@ client.on('interactionCreate', (interaction) => {
  if(!interaction.isChatInputCommand()) return;
 
 
-if (interaction.commandName === 'account'){ 
+if (interaction.commandName === 'stats'){ 
     async function processOptions(){
     try {
         const pseudoOption = interaction.options.get("pseudo");

@@ -7,8 +7,8 @@ import { REST, Routes, ApplicationCommandOptionType, Options } from 'discord.js'
 
 const commands = [
     {
-        name: 'account',
-        description: 'Guette les infos du compte par RiotID',
+        name: 'stats',
+        description: 'Obtient les informations d\'un compte par RiotID',
         options: [
             {
                 name: 'pseudo',
