@@ -333,7 +333,7 @@ if (interaction.commandName === 'track'){
                 try {
                     const user = await client.users.fetch(user.discordId);
                     if (user) {
-                        user.send('Youre League games are currently being tracked')
+                        user.send('Your League game is currently being tracked')
                             .then(() => {
                                 console.log(`Message sent to ${user.tag}`);
                             })
