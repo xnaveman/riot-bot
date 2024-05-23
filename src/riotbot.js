@@ -40,7 +40,13 @@ client.on('ready', (c) => {
 
 //SPY
 client.on('messageCreate', (message) => {
+    let guy = message.author.tag;
     console.log(`${(message.author.tag)} à dit : ${(message.content)}`);
+    //if (guy === qooshy){
+        //message.reply('Le message de ce joueur à été censuré car il ne mérite pas de vivre');
+        //message.delete;
+
+    //}
 });
 
 // VARIABLES INIT (SHOULD BE ON A CONFIG)
@@ -316,6 +322,39 @@ if (interaction.commandName === 'spectate'){
 
 if (interaction.commandName === 'track'){
 
+    async function checkAllUsers() {
+        for (const user of usersToCheck) {
+            let [namePart, tagPart] = riotId.split('#');
+            namePart = namepart.replace(/ /g, '%20');
+            const uuid = await getPlayerUuid(namePart, tagPart);
+            const activeGame = await getPlayerSpectate(uuid);
+            if (activeGame.data.gameId) {
+                
+                try {
+                    const user = await client.users.fetch(user.discordId);
+                    if (user) {
+                        user.send('Youre League games are currently being tracked')
+                            .then(() => {
+                                console.log(`Message sent to ${user.tag}`);
+                            })
+                            .catch(error => {
+                                console.error(`Could not send message to ${user.tag}:`, error);
+                            });
+                    } else {
+                        console.log('User not found');
+                    }
+                } catch (error) {
+                    console.error('Error fetching user:', error);
+                }
+
+                await interaction.reply(`Tracking en cours`);
+            } else {
+                await interaction.reply(`Le joueur ${user.riotId} n'est pas en jeu`);
+            }
+        }
+    }
+    setInterval(checkAllUsers, 5 * 60 * 1000);
+
 }
 });
 
@@ -333,6 +372,29 @@ client.on('messageCreate', async (message) => {
         saveUsers();
 
         message.reply(`Now tracking ${riotId}.`);
+
+    }
+});
+
+client.on('messageCreate', async (message) => {
+    if (message.content.startsWith('!test')) {
+        const discid = '339308422673596421';
+        try {
+            const user = await client.users.fetch(discid);
+            if (user) {
+                user.send('ratio')
+                    .then(() => {
+                        console.log(`Message sent to ${user.tag}`);
+                    })
+                    .catch(error => {
+                        console.error(`Could not send message to ${user.tag}:`, error);
+                    });
+            } else {
+                console.log('User not found');
+            }
+        } catch (error) {
+            console.error('Error fetching user:', error);
+        }
     }
 });
 

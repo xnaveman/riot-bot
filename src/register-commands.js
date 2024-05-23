@@ -42,26 +42,6 @@ const commands = [
     {
         name: 'track',
         description: 'Traque un joueur spécifique et le harcèle via DM discord (surtout s\'il perd ou s\'il joue Teemo)',
-        options: [
-            {
-                name: 'pseudo',
-                description: 'Ton pseudo en jeu',
-                type: ApplicationCommandOptionType.String,
-                required: true,
-            },
-            {
-                name: 'tag',
-                description: 'Ton tag en jeu (#....) SANS LE # !!',
-                type: ApplicationCommandOptionType.String,
-                required: true,
-            },
-            {
-                name: 'discord_id',
-                description: 'L\'ID Discord du joueur à traquer',
-                type: ApplicationCommandOptionType.String,
-                required: true,
-            },
-        ],
     },
 ];
 
