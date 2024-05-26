@@ -42,11 +42,6 @@ client.on('ready', (c) => {
 client.on('messageCreate', (message) => {
     let guy = message.author.tag;
     console.log(`${(message.author.tag)} à dit : ${(message.content)}`);
-    //if (guy === qooshy){
-        //message.reply('Le message de ce joueur à été censuré car il ne mérite pas de vivre');
-        //message.delete;
-
-    //}
 });
 
 // VARIABLES INIT (SHOULD BE ON A CONFIG)
